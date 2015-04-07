@@ -172,19 +172,17 @@ create_gr_from_df_4_circos_range = function(DF,label) {
   invisible(out)
 }
 
-get_chiapet_arch <- function(rep) {
+get_chiapet_arch <- function(rep, track_title) {
   
   g = ggplot(rep) +
     geom_arch() +
     theme_bw() +
-    #aes(size=base_width, color=color) +
-    #aes(size = alpha) +
     aes(color=color, alpha = alpha) +
-#     aes(color=color) +
-#     scale_colour_manual(values = c("gray","promoter"="black")) +
+#   aes(color=color) +
+#   scale_colour_manual(values = c("gray","promoter"="black")) +
     xlim(current_range) +
     theme(axis.ticks = element_blank(), axis.text.y = element_blank()) +
-    ylab("") + guides(alpha=FALSE, color=FALSE)
+    ylab(track_title) + guides(alpha=FALSE, color=FALSE)
   
 #   if (!is.null(highlight_region)) {
 #     
@@ -210,8 +208,14 @@ make_emphasis = function(range, range_degree) {
         && start_value < (end(range_degree) - 1)) 
        || (end_value > (start(range_degree) - 1) 
            && end_value < (end(range_degree) - 1))) {
-      range[i]$alpha = range_degree$alpha
-      range[i]$color = range_degree$color
+      
+      if(range_degree$method == "alpha") {
+        range[i]$alpha = 0.6
+      }
+      
+      if(range_degree$method == "color") {
+        range[i]$color = "promoter"
+      }
     }
   }
   

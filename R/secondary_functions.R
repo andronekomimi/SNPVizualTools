@@ -39,7 +39,7 @@ create_gr_from_df = function(DF,start_idx,end_idx,label) {
 }
 
 create_gr_from_microTfile = function(DF,start_idx,end_idx,label) {
-#   label = ""
+  #   label = ""
   left = c()
   right = c()
   base_width = c()
@@ -178,19 +178,13 @@ get_chiapet_arch <- function(rep, track_title) {
     geom_arch() +
     theme_bw() +
     aes(color=color, alpha = alpha) +
-#   aes(color=color) +
-#   scale_colour_manual(values = c("gray","promoter"="black")) +
+    #   aes(color=color) +
+    #   scale_colour_manual(values = c("gray","promoter"="black")) +
     xlim(current_range) +
     theme(axis.ticks = element_blank(), axis.text.y = element_blank()) +
-    ylab(track_title) + guides(alpha=FALSE, color=FALSE)
+    ylab(track_title) + guides(alpha=FALSE, color=FALSE) +
+    theme(axis.title.y = element_text(size = rel(0.5), angle = 90))
   
-#   if (!is.null(highlight_region)) {
-#     
-#     highlight_region = strsplit(x = highlight_region, fixed = T, split = ":")[[1]]
-#     d = data.frame(x1=as.numeric(highlight_region[1]), x2=as.numeric(highlight_region[2]), y1=0, y2=10)
-#     g = g + geom_rect(d, mapping=aes(xmin=x1, xmax=x2,ymin=y1, ymax=y2), color="black", alpha = 0.4) + xlim(current_range)
-#   }
-#   
   g
   
 }

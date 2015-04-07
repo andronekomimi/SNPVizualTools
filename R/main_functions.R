@@ -104,7 +104,7 @@ getDataOverview <- function() {
 
 #' Prepare tracks to plot them
 #' 
-#' @param ranges_list list of GenomicRanges generated with the function 
+#' @param ranges_list list of GenomicRanges generated with the functions 
 #' \code{getDataOverview}
 #' @param highlight_range_list list of GenomicRange generated with the function 
 #' \code{setHighLight}
@@ -137,8 +137,8 @@ drawArchs <- function(ranges_list, highlight_range_list = NULL) {
       for(highlight_range in highlight_range_list) {
         range = make_emphasis(range, highlight_range)      
       }
-      
-      range_track = get_chiapet_arch(range,NULL)
+      track_title = gsub(x = range[1]$color, pattern = " ", replacement = "\n")
+      range_track = get_chiapet_arch(range,track_title)
       my.tracks = c(my.tracks, range_track)
     }   
   }
@@ -189,20 +189,57 @@ setHighLight <- function(current_start, current_stop, method) {
 }
 
 
-#' Extract SNP informations from a flat file into a list of GenomicRanges
+#' Extract annotation informations from the annotation package org.Hs.eg.db
 #' 
-#' @param absolute path to the file containing snp informations
+#' @param file_path character absolute path to the file containing snp 
+#' informations
+#' @param label character label of the track, default "Annotations" 
+#' @return a ggplot track
+#'
+#' @examples
+#' current_chr <- "chr12"
+#' current_range <- setStudyRange(27950000, 28735000)
+#' annot_track <- drawAnnotations("My Genes")
 #' 
-#' @return a GenomicRange list
+#' @export
+drawAnnotations <- function(label = "Annotations") {
+  can_run_4()
+  
+  gr_txdb <- crunch(TxDb.Hsapiens.UCSC.hg19.knownGene, which = current_range)
+  colnames(values(gr_txdb))[4] <- "model"
+  gr_txdb$symbols <- select(org.Hs.eg.db,
+                            keys = as.character(gr_txdb$gene_id),
+                            column = "SYMBOL",
+                            keytype = "ENTREZID")$SYMBOL
+  i <- which(gr_txdb$model == "gap")
+  gr_txdb <- gr_txdb[-i]
+  levels(gr_txdb) <- c("cds", "exon", "utr")
+  grl_txdb <- split(gr_txdb, gr_txdb$symbols)
+  
+  
+  genes <- autoplot(grl_txdb, aes(type = model)) + 
+    theme_bw() + xlim(current_range) + ylab(label) +
+    theme(axis.title.y = element_text(size = rel(0.5), angle = 90))
+  
+  genes
+}
+
+#' Extract SNP informations from a flat file and build the resulting track
+#' 
+#' @param file_path character absolute path to the file containing snp 
+#' informations
+#' @param label character label of the track, default "SNPs"
+#' 
+#' @return a ggplot track
 #'
 #' @examples
 #' snps_list = "~/Workspace/COLLAB/PTHLH_snps"
 #' current_chr <- "chr12"
 #' current_range <- setStudyRange(27950000, 28735000)
-#' snps_track <- drawSNPs(snps_list)
+#' snps_track <- drawSNPs(snps_list, "My SNPs")
 #' 
 #' @export
-drawSNPs <- function(file_path) {
+drawSNPs <- function(file_path, label = "SNPs") {
   can_run_4()
   
   snps_df <- read.table(snps_list, header=TRUE, stringsAsFactors=FALSE, quote = "\"", sep="\t")
@@ -213,11 +250,38 @@ drawSNPs <- function(file_path) {
   
   snps_track <- autoplot(snps, aes(color=imp)) +
     geom_text(aes(x = start, y = 1, label=name, angle = 90, vjust=-1), size = 1, color = "blue") +
-    theme_bw() +
-    xlim(current_range) + guides(color= FALSE)
+    theme_bw() + ylab(label) + xlim(current_range) + guides(color= FALSE) + 
+    theme(axis.title.y = element_text(size = rel(0.5), angle = 90))
   
   snps_track
 }
+
+
+
+
+#' Merge range in a single one
+#' 
+#' @param ranges vector of GenomicRanges generated with the functions 
+#' \code{getDataOverview} you want to merge
+#' @param label character label of the merged range
+#' 
+#' @return a GenomicRange 
+#'
+#' @examples
+#' current_chr <- "chr12"
+#' my.data <- loadChrData()
+#' current_range <- setStudyRange(27950000, 28735000)
+#' my.ranges <- getDataOverview()
+#' k562_chiapet <- mergeRanges(c(my.ranges$arch$sgp_k562_lane13,
+#' my.ranges$arch$sgp_k562_lane24), label = "K562 ChiA-PET SGP")
+#' 
+#' @export
+mergeRanges <- function(ranges, label) {
+  ranges$color = rep(x = label, times = length(ranges))
+  ranges
+}
+
+
 
 can_run <- function() {
   if(!exists("current_chr"))

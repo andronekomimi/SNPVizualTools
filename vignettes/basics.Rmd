@@ -1,0 +1,31 @@
+---
+title: "SNPVizualTools Basics"
+author: "Audrey Lemacon"
+date: "07/04/2015"
+output: html_document
+---
+
+### Loading SNPVizualTools package and dependencies
+
+```{r libraryLoad}
+suppressMessages(library(GenomicRanges))
+suppressMessages(library(rtracklayer))
+suppressMessages(library(ggbio))
+suppressMessages(library(TxDb.Hsapiens.UCSC.hg19.knownGene))
+suppressMessages(library(biovizBase))
+suppressMessages(library(org.Hs.eg.db))
+suppressMessages(library(SNPVizualTools))
+```
+
+
+
+```{r}
+
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+
+```
+

@@ -28,12 +28,12 @@ create_gr_from_df = function(DF,start_idx,end_idx,label) {
   
   if(length(left) > 0) {
     g_ranges <- GRanges(seqnames = current_chr, ranges = ranges, size = base_width, color = color, alpha = rep(0.5,length(left)))
-    print(paste0("-> Find ",length(g_ranges)," interaction for ", label))
+    cat(paste0("-> Find ",length(g_ranges)," interaction(s) for ", label,"\n"))
     invisible(g_ranges)
   }
   else
   {
-    print(paste0("No relation found for ", label))
+    cat(paste0("No relation found for ", label,"\n"))
     invisible(GRanges())
   }
 }
@@ -82,12 +82,12 @@ create_gr_from_microTfile = function(DF,start_idx,end_idx,label) {
     g_ranges <- GRanges(seqnames = current_chr, ranges = ranges, 
                         base_width = base_width, color = color, alpha = rep(0.5,length(left)),
                         annotated = annotated, tsID = transcript_id)
-    print(paste0("-> Find ",length(g_ranges)," interaction for ", label))
+    cat(paste0("-> Find ",length(g_ranges)," interaction(s) for ", label,"\n"))
     invisible(g_ranges)
   }
   else
   {
-    print(paste0("No relation found for ", label))
+    cat(paste0("No relation found for ", label,"\n"))
     invisible(GRanges())
   }
 }
@@ -161,7 +161,7 @@ create_gr_from_df_4_circos_range = function(DF,label) {
     
     left_range <- GRanges(seqnames = chrom_start, ranges = left_ranges, base_width = base_width, color = color)
     right_range <- GRanges(seqnames = chrom_end, ranges = right_ranges, base_width = base_width, color = color)
-    print(paste0("-> Find ",length(left_ranges)," interaction for ", label))
+    print(paste0("-> Find ",length(left_ranges)," interaction(s) for ", label))
     out = list(left_range, right_range)
   }
   else

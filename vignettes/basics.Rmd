@@ -1,31 +1,117 @@
----
-title: "SNPVizualTools Basics"
-author: "Audrey Lemacon"
-date: "07/04/2015"
-output: html_document
----
+
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{A package to produce Metafeature plots}
+-->
+
+
+SNPVizualTools Basics
+====================================================================
+
 
 ### Loading SNPVizualTools package and dependencies
 
 ```{r libraryLoad}
-suppressMessages(library(GenomicRanges))
-suppressMessages(library(rtracklayer))
-suppressMessages(library(ggbio))
-suppressMessages(library(TxDb.Hsapiens.UCSC.hg19.knownGene))
-suppressMessages(library(biovizBase))
-suppressMessages(library(org.Hs.eg.db))
 suppressMessages(library(SNPVizualTools))
 ```
 
 
+### How to generate a basic vizualisations
 
-```{r}
-
+First define the chromosome you want to study (current_chr) and get the 
+available data (my.data) for this chromosome:
+```{r, eval=FALSE}
+current_chr <- "chr12"
+my.data <- loadChrData()
 ```
 
-You can also embed plots, for example:
-
-```{r, echo=FALSE}
-
+The define the area to vizualise: 
+```{r, eval=FALSE}
+current_range <- setStudyRange(27950000, 28735000)
 ```
+
+The loaded data will be screened and the found interactions will transform into
+Genomic Ranges (my.ranges):
+```{r, eval=FALSE}
+my.ranges <- getDataOverview()
+```
+
+The **my.ranges** variable is a list containing three elements: **arch**, 
+**circos** and **lncrna**.
+Each element is designed for a type of visual representation:
+
+- **arch** will be used with the function `drawArchs`
+
+- **circos** will be used with the function `drawCircos`
+
+- **lncrna** will be used with the function `drawLncrnas`
+
+
+
+#### Draw Archs
+You can draw the HiC and ChIA-PET arches with functions `drawArchs` to generate
+ggplot arches and `tracks` to print them. By default, this function uses 
+**my.ranges** data.
+
+```{r, eval=FALSE}
+arches_track <- drawArchs()
+tracks(arches_track) + xlim(current_range)
+```
+
+If you want to highlight some regions, you can provide a list of highlight 
+regions. A highlight region will be generated throught the `setHighLight` 
+function. This function needs a start and a stop to define the region to 
+highlight and a method defining the way to highlight this specific zone (by 
+increasing its alpha or changing its color):
+
+```{r, eval=FALSE}
+specific_range1 <- setHighLight(28111017,28127138,"alpha")
+specific_range2 <- setHighLight(28284682,28287682,"alpha")
+specific_range3 <- setHighLight(28284682,28287682,"color")
+
+arches_track <- drawArchs(highlight_range_list = list(specific_range1,specific_range2, specific_range3))
+tracks(arches_track) + xlim(current_range)
+```
+
+
+By default, all the replicates of an experiment are processed individually.
+After generated the **my.ranges** variable, you can manually merged some lines :
+
+```{r, eval=FALSE}
+k562_chiapet <- mergeRanges(c(my.ranges$arch$sgp_k562_lane13, my.ranges$arch$sgp_k562_lane24), label = "K562 ChiA-PET SGP")
+```
+
+You can vizualise the resulting figure like that :
+```{r, eval=FALSE}
+specific_range1 <- setHighLight(28111017,28127138,"alpha")
+
+custom_track <- drawArchs(ranges_list = k562_chiapet, highlight_range_list = list(specific_range1))
+tracks(custom_track) + xlim(current_range)
+```
+
+To re-organize (select, order and/or merge) several the ranges you can use the 
+powerful function `organizeRanges`. You have to provide a vector with the index 
+of the tracks if you have already generated a first figure with all the 
+informative tracks (track_index) OR a vector with the index of the range how 
+they appear in **my.range** (range_index)  and a vector with the labels of 
+tracks if you want to change them.
+The following syntax indicate you to merge two or more tracks : `1;4`. 
+
+Here is an example :
+```{r, eval=FALSE}
+index = c("1;2;4","3;5","9","7")
+labels =  c("Chiapet 1", "Chiapet 2", "HiC 2", NA)
+custom_ranges <- organizeRanges(track_index = index, labels = labels)
+
+specific_range1 <- setHighLight(28111017,28127138,"alpha")
+custom_track <- drawArchs(ranges_list = custom_ranges, highlight_range_list = list(specific_range1))
+tracks(custom_track) + xlim(current_range)
+```
+
+The resulting track is the fusion of track 1, 2 and 4 renamed "Chiapet 1", 
+following by of track 3 and 5 renamed "Chiapet 2", the nineth track renamed 
+"HiC 2" and then the seventh track with its original label.
+
+
+
 
